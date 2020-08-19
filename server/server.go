@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/felixge/httpsnoop"
+	"github.com/golang/groupcache/lru"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
@@ -160,6 +161,9 @@ type Server struct {
 	authRequestsValidFor time.Duration
 
 	logger log.Logger
+
+	// LRU cache of regex matchers for a given permitted redirect URI defined in Client
+	wildcardMatcherCache *lru.Cache
 }
 
 // NewServer constructs a server from the provided config.
@@ -225,6 +229,7 @@ func newServer(ctx context.Context, c Config, rotationStrategy rotationStrategy)
 		templates:              tmpls,
 		passwordConnector:      c.PasswordConnector,
 		logger:                 c.Logger,
+		wildcardMatcherCache:   lru.New(500),
 	}
 
 	// Retrieves connector objects in backend storage. This list includes the static connectors
