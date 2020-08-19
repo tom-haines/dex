@@ -42,7 +42,7 @@ staticClients:
 - id: example-app
   secret: example-app-secret
   name: 'Example App'
-  # Where the app will be running.
+  # Where the app will be running.  Refer section below regarding RedirectURLs and wilcard subdomains.
   redirectURIs:
   - 'http://127.0.0.1:5555/callback'
 ```
@@ -62,7 +62,7 @@ oauth2Config := oauth2.Config{
     ClientID:     "example-app",
     ClientSecret: "example-app-secret",
 
-    // The redirectURL.
+    // The redirectURL.  
     RedirectURL: "http://127.0.0.1:5555/callback",
 
     // Discovery returns the OAuth2 endpoints.
@@ -124,6 +124,35 @@ func handleOAuth2Callback(w http.ResponseWriter, r *http.Request) {
     }
 }
 ```
+
+#### Redirect URLs Syntax
+
+When configuring a client, it includes an array list of redirection endpoints allowed for the given clientId.
+
+The redirection endpoint [RFC6749#3.1.2](https://tools.ietf.org/html/rfc6749#section-3.1.2) URI must be an absolute URI as defined as per [RFC3986#4.3](https://tools.ietf.org/html/rfc3986#section-4.3).
+
+There is one allowed exception to [RFC3986#4.3](https://tools.ietf.org/html/rfc3986#section-4.3) syntax allowing a start symbol (`*`) as a wilcard in the redirectURI subdomain of the host.
+
+A subdomain wildcard will only function if all these conditions are met:
+
+1. application is confidential (i.e. not public)
+
+2. schemes is `http` or `https`
+
+3. The wildcard must be located below a subdomain of the TLD, and in the subdomain furthest from the TLD domain. i.e. 
+
+* Valid: `https://*.engineer.learning.com`
+* Valid: `https://*.learning.com`
+* Invalid: `https://abc.*.learning.com`: not furthest from TLD domain (`abc` portion is furthest)
+* Invalid: `https://*.com`: wilcard is not below subdomain of TLD
+
+4. The URL must not contain more than one wildcard.  For example, `https://*.*.learning.com` is invalid for having 2 wildcard symbols.
+
+The furthest subdomain can combine an optional prefix and/or suffix to the wildcard.  For example `https://priv-*-internal.learning.com/callback` or `https://*-internal.learning.com/callback` will both match `https://priv-abc-internal.learning.com/callback`.
+
+A wilcard will only match within the farthest domain from TLD. `https://*.learning.com` will not match `https://abc.engineering.learning.com/`.
+
+For best practice, wildcards for subdomains in application callbacks should be carefully considered and used with caution, as it is possible it could make your application more vulnerable to certain types of attacks.  
 
 ### State tokens
 

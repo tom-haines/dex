@@ -76,7 +76,7 @@ The ID token claims will then include the following audience and authorized part
     "email": "foo@bar.com",
     // other claims...
 }
-``` 
+```
 
 ## Public clients
 
@@ -88,11 +88,22 @@ staticClients:
   public: true
   name: 'CLI app'
   secret: cli-app-secret
+  redirectURIs:  
+  - 'https://localhost:8080/callback' # sample URL, see below restrictions 
 ```
 
-Instead of traditional redirect URIs, public clients are limited to either redirects that begin with "http://localhost" or a special "out-of-browser" URL "urn:ietf:wg:oauth:2.0:oob". The latter triggers dex to display the OAuth2 code in the browser, prompting the end user to manually copy it to their app. It's the client's responsibility to either create a screen or a prompt to receive the code, then perform a code exchange for a token response.
+In contract to non-public (confidential) clients, the allowed redirect URIs for public clients are heavily restricted.  
+The URI must been one of the following conditions:
 
-When using the "out-of-browser" flow, an ID Token nonce is strongly recommended.
+a. matches the "out-of-browser" URL `urn:ietf:wg:oauth:2.0:oob`   
+
+b. begins with `http://localhost` or `https://localhost`
+
+The out-of-browser URL triggers dex to display the OAuth2 code in the browser, prompting the end user to manually copy it to their app. 
+
+It's the client's responsibility to create a screen or prompt to receive the code, then perform a code exchange for a token response.
+
+When using the "out-of-browser" flow, we strongly recommended using an ID Token nonce.
 
 [saml-connector]: saml-connector.md
 [core-claims]: https://openid.net/specs/openid-connect-core-1_0.html#IDToken
