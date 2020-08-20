@@ -131,28 +131,28 @@ When configuring a client, it includes an array list of redirection endpoints al
 
 The redirection endpoint [RFC6749#3.1.2](https://tools.ietf.org/html/rfc6749#section-3.1.2) URI must be an absolute URI as defined as per [RFC3986#4.3](https://tools.ietf.org/html/rfc3986#section-4.3).
 
-There is one allowed exception to [RFC3986#4.3](https://tools.ietf.org/html/rfc3986#section-4.3) syntax allowing a start symbol (`*`) as a wilcard in the redirectURI subdomain of the host.
+Dex permits wildcard `*` and globber `**` matcher symbols as a (limited) extension to the [RFC3986#4.3](https://tools.ietf.org/html/rfc3986#section-4.3) syntax.
 
-A subdomain wildcard will only function if all these conditions are met:
+Matcher symbols will only function if all of the following conditions are met:
 
 1. application is confidential (i.e. not public)
 
-2. schemes is `http` or `https`
+2. URL scheme is `http` or `https`
 
-3. The wildcard must be located below a subdomain of the TLD, and in the subdomain furthest from the TLD domain. i.e. 
+3. A TLD domain, and a first subdomain must be present in URL, and neither of these two domain name sections can include a matcher symbol. 
 
+* Invalid: `https://*hello.com`: matcher symbol is contained in the first subdomain below the TLD 
 * Valid: `https://*.engineer.learning.com`
 * Valid: `https://*.learning.com`
-* Invalid: `https://abc.*.learning.com`: not furthest from TLD domain (`abc` portion is furthest)
-* Invalid: `https://*.com`: wilcard is not below subdomain of TLD
+* Valid: `https://**.learning.com`
+* Valid: `https://abc**.learning.com` : will match abc.def.ghf.learning.com 
+* Valid: `https://abc.*.learning.com` : will match abc.def.learning.com (but not abc.def.ghf.learning.com)
+* Valid: `https://*.learning.com`: will match abc.learning.com (but not abc.def.learning.com)
+* Valid: `https://*.d*.learning.com`: will match abc.def.learning.com (but not abc.learning.com or abc.ef.learning.com)
 
-4. The URL must not contain more than one wildcard.  For example, `https://*.*.learning.com` is invalid for having 2 wildcard symbols.
+For best practice, matching symbols for subdomains in application callbacks should be carefully considered and used with caution, as it is possible it could make your application more vulnerable to certain types of attacks.
 
-The furthest subdomain can combine an optional prefix and/or suffix to the wildcard.  For example `https://priv-*-internal.learning.com/callback` or `https://*-internal.learning.com/callback` will both match `https://priv-abc-internal.learning.com/callback`.
-
-A wilcard will only match within the farthest domain from TLD. `https://*.learning.com` will not match `https://abc.engineering.learning.com/`.
-
-For best practice, wildcards for subdomains in application callbacks should be carefully considered and used with caution, as it is possible it could make your application more vulnerable to certain types of attacks.  
+The matching symbols are only compared with the hostname portion of the URI client by a client.   
 
 ### State tokens
 
