@@ -152,7 +152,7 @@ Matcher symbols will only function if all of the following conditions are met:
 
 For best practice, matching symbols for subdomains in application callbacks should be carefully considered and used with caution, as it is possible it could make your application more vulnerable to certain types of attacks.
 
-The matching symbols are only compared with the hostname portion of the URI client by a client.   
+The matching symbols only compare with the hostname portion of the redirect URI requested (path is compared by a separate equality matcher).   
 
 ### State tokens
 
