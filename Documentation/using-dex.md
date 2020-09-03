@@ -137,18 +137,16 @@ Matcher symbols will only function if all of the following conditions are met:
 
 1. application is confidential (i.e. not public)
 
-2. URL scheme is `http` or `https`
-
-3. A TLD domain, and a first subdomain must be present in URL, and neither of these two domain name sections can include a matcher symbol. 
+2. A TLD domain, and a first subdomain (SLD) must be present in URL, and neither of these two domain name sections can include a matcher symbol. 
 
 * Invalid: `https://*hello.com`: matcher symbol is contained in the first subdomain below the TLD 
 * Valid: `https://*.engineer.learning.com`
 * Valid: `https://*.learning.com`
 * Valid: `https://**.learning.com`
-* Valid: `https://abc**.learning.com` : will match abc.def.ghf.learning.com 
+* Valid: `https://abc**.learning.com` : will match abc.d.learning.com abcd.learning.com
 * Valid: `https://abc.*.learning.com` : will match abc.def.learning.com (but not abc.def.ghf.learning.com)
 * Valid: `https://*.learning.com`: will match abc.learning.com (but not abc.def.learning.com)
-* Valid: `https://*.d*.learning.com`: will match abc.def.learning.com (but not abc.learning.com or abc.ef.learning.com)
+* Valid: `https://*.d*.learning.com`: will match abc.def.learning.com (but not abc.learning.com or abc.ef.learning.com or abc.d.learning.com)
 
 For best practice, matching symbols for subdomains in application callbacks should be carefully considered and used with caution, as it is possible it could make your application more vulnerable to certain types of attacks.
 
